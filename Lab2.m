@@ -122,9 +122,9 @@ pixelclock = 7; %Set the speed of pixel readout.
         end
         star_mean_aoi = star_mean(aoi(1):aoi(1)+aoi(3)-1,aoi(2):aoi(2)+aoi(4)-1);
         h = disp_image(star_mean_aoi,'AOI Used to Sharpen Star Pattern Target');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
         h = disp_image(star_mean,'Sharpest Possible Image of Star Pattern Target');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
     %Best line pair.
 %         loop_camera(C,{'pixelclock',pixelclock},{'exposure',exposure},{'frames',10});
         aoi = [401 633 84 264]; %AOI.
@@ -134,9 +134,9 @@ pixelclock = 7; %Set the speed of pixel readout.
         end
         line_mean_aoi = line_mean(aoi(1):aoi(1)+aoi(3)-1,aoi(2):aoi(2)+aoi(4)-1);
         h = disp_image(line_mean_aoi,'AOI Used to Sharpen Line Pairs');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
         h = disp_image(line_mean,'Sharpest Possible Image of Line Pairs');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
    %Comparing Part 2 and Part 3.
         figure; subplot(1,2,1); colormap('gray'); imagesc(star2_mean'); axis('image'); title('Image of Star Pattern Target with 2 to 10 lp/mm in Focus'); hold on;
         xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); h = colorbar; ylabel(h,'Intensity <Arbitrary Units>');
