@@ -117,28 +117,32 @@ pixelclock = 7; %Set the speed of pixel readout.
 %         loop_camera(C,{'pixelclock',pixelclock},{'exposure',exposure},{'frames',10});
         aoi = [843 459 80 84]; %AOI.
 %         loop_camera(C,{'pixelclock',pixelclock},{'aoi',aoi},{'exposure',exposure},{'frames',10});
-        if ~exist('star_mean_aoi','var')
-            [~,star_mean_aoi] = capture_frames(C,{'pixelclock',pixelclock},{'aoi',aoi},{'exposure',exposure},{'frames',frames});
-        end
         if ~exist('star_mean','var')
             [~,star_mean] = capture_frames(C,{'pixelclock',pixelclock},{'exposure',exposure},{'frames',frames});
         end
+        star_mean_aoi = star_mean(aoi(1):aoi(1)+aoi(3)-1,aoi(2):aoi(2)+aoi(4)-1);
         h = disp_image(star_mean_aoi,'AOI Used to Sharpen Star Pattern Target');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
         h = disp_image(star_mean,'Sharpest Possible Image of Star Pattern Target');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
-    %Best line pair
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+    %Best line pair.
 %         loop_camera(C,{'pixelclock',pixelclock},{'exposure',exposure},{'frames',10});
         aoi = [401 633 84 264]; %AOI.
 %         loop_camera(C,{'pixelclock',pixelclock},{'aoi',aoi},{'exposure',exposure},{'frames',10});
-        if ~exist('line_mean_aoi','var')
-            [~,line_mean_aoi] = capture_frames(C,{'pixelclock',pixelclock},{'aoi',aoi},{'exposure',exposure},{'frames',frames});
-        end
         if ~exist('line_mean','var')
             [~,line_mean] = capture_frames(C,{'pixelclock',pixelclock},{'exposure',exposure},{'frames',frames});
         end
+        line_mean_aoi = line_mean(aoi(1):aoi(1)+aoi(3)-1,aoi(2):aoi(2)+aoi(4)-1);
         h = disp_image(line_mean_aoi,'AOI Used to Sharpen Line Pairs');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
         h = disp_image(line_mean,'Sharpest Possible Image of Line Pairs');
-        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h{2},'Intensity <Arbitrary Units>');
-        
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); ylabel(h,'Intensity <Arbitrary Units>');
+   %Comparing Part 2 and Part 3.
+        figure; subplot(1,2,1); colormap('gray'); imagesc(star2_mean'); axis('image'); title('Image of Star Pattern Target with 2 to 10 lp/mm in Focus'); hold on;
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); h = colorbar; ylabel(h,'Intensity <Arbitrary Units>');
+        subplot(1,2,2); imagesc(star_mean');  axis('image'); title('Sharpest Possible Image of Star Pattern Target');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); h = colorbar; ylabel(h,'Intensity <Arbitrary Units>');
+        figure; subplot(1,2,1); colormap('gray'); imagesc(line2_mean'); axis('image'); title('Image of Line Pairs with 2 to 10 lp/mm in Focus'); hold on;
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); h = colorbar; ylabel(h,'Intensity <Arbitrary Units>');
+        subplot(1,2,2); imagesc(line_mean');  axis('image'); title('Sharpest Possible Image of Line Pairs');
+        xlabel('Horizontal Axis <Pixels>'); ylabel('Vertical Axis <Pixels>'); h = colorbar; ylabel(h,'Intensity <Arbitrary Units>');
