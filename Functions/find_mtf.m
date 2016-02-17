@@ -65,7 +65,7 @@ function [mtf,region] = find_mtf(A,type,varargin)
     else
         aoi = define_aoi(A,'center');
     end
-    A_aoi = A(aoi(1):aoi(1)+aoi(3),aoi(2):aoi(2)+aoi(4));    
+    A_aoi = A(aoi(1):aoi(1)+aoi(3)-1,aoi(2):aoi(2)+aoi(4)-1);
     if any(strcmp(type,{'line','edge'}))
         if strcmp(angle,'hough')
             A_aoi = A_aoi/max(A_aoi(:));
