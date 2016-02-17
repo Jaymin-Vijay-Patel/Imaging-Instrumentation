@@ -1,5 +1,6 @@
 function [mtf,region] = find_mtf(A,type,varargin)
-%FIND_MTF Find the MTF from an line pair, edge, or star.
+%FIND_MTF Find the MTF from a line pair, edge, or star.
+%   Line pair and star currently unsupported.
 %
 %Syntax:    mtf = FIND_MTF(A,type)
 %           mtf = FIND_MTF(...,angle)
@@ -106,7 +107,7 @@ function [mtf,region] = find_mtf(A,type,varargin)
         A_line = sum(A_crop,2);
         A_line = A_line(:);
         if strcmp(type,'line')
-           	A_lsf = A_line;
+%           	A_lsf = A_line;
         elseif strcmp(type,'edge')
             A_lsf = [diff(A_line); 0];
         end
