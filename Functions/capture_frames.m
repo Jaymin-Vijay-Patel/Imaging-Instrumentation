@@ -35,7 +35,7 @@ function varargout = capture_frames(varargin)
 %SET INPUTS
 %---------------------------------------------------
 %Check the number of inputs.
-    narginchk(0,5);
+    narginchk(0,5); 
 %Assign varargin.
     setC = false;
     for n = 1:nargin
@@ -69,12 +69,12 @@ function varargout = capture_frames(varargin)
         if ~isequal(round(pixelclock),pixelclock) || pixelclock<1 || isinf(pixelclock)
             throw(MException([mfilename ':in_pixelclock'],'\t"pixelclock" must be an integer within [1,inf).'));
         end
+        C.pixelclock = pixelclock;
     else
         if ~setC
-            pixelclock = 7;
+            C.pixelclock = 7;
         end
-    end
-    C.pixelclock = pixelclock;
+    end    
 %Assign aoi.
     if exist('aoi','var')
         if ~isequal(round(aoi),aoi)
@@ -98,12 +98,12 @@ function varargout = capture_frames(varargin)
     C.aoi = aoi;
 %Assign exposure.
     if exist('exposure','var')
-        if exposure<C.exposurerange(2)
-            throw(MException([mfilename ':in_exposure'],['\t"exposure" must be greater than ' num2str(C.exposurerange(2)) '.']));
-        end
-        if exposure>C.exposurerange(3)
-            throw(MException([mfilename ':in_exposure'],['\t"exposure" must be less than ' num2str(C.exposurerange(3)) '.']));
-        end
+%         if exposure<C.exposurerange(1)
+%             throw(MException([mfilename ':in_exposure'],['\t"exposure" must be greater than or equal to ' num2str(C.exposurerange(1)) '.']));
+%         end
+%         if exposure>C.exposurerange(3)
+%             throw(MException([mfilename ':in_exposure'],['\t"exposure" must be less than or equal to ' num2str(C.exposurerange(3)) '.']));
+%         end
         C.exposure = exposure;
     end
 %Assign frames.
