@@ -1,4 +1,4 @@
-function [LDR,HDR,A] = capture_hdr(varargin)
+function [LDR,HDR,A,E] = capture_hdr(varargin)
 %CAPTURE_HDR Capture images to generate an HDR image with a DCC3240M camera.
 %
 %Syntax:    LDR = CAPTURE_HDR()
@@ -24,6 +24,7 @@ function [LDR,HDR,A] = capture_hdr(varargin)
 %Output:    LDR - LDR image.
 %           HDR - HDR image.
 %           A   - Images at each exposure.
+%           E   - Image with exposure chosen at each pixel.
 %
 %See also:
 %Required   CAMERA, CAPTURE_FRAMES.
@@ -33,7 +34,7 @@ function [LDR,HDR,A] = capture_hdr(varargin)
 %           Department of Biomedical Engineering
 %           Johns Hopkins University, Baltimore, MD.
 %E-mail:    nathan.crookston@gmail.com, slee333@jhu.edu, jpatel18@jhmi.edu
-%Revision:  02/19/16
+%Revision:  02/24/16
 %---------------------------------------------------
 
 %SET INPUTS
@@ -41,6 +42,7 @@ function [LDR,HDR,A] = capture_hdr(varargin)
 %Check the number of inputs.
     narginchk(0,5);
 %Assign varargin.
+    P = struct();
     setC = false;
     n = 1;
     while n<=numel(varargin)
@@ -64,11 +66,13 @@ function [LDR,HDR,A] = capture_hdr(varargin)
         end
         n = n+1;
     end
+existA = false;
 if exist('A','var')
     %Check A.
         if ~isnumeric(A) || size(A,1)<2 || size(A,2)<2  || size(A,3)<2
             throw(MException([mfilename ':in_A'],'\t"A" must be a 3 dimensional numeric array.'));
         end
+        existA = true;
 else
     %Assign C.
         if ~exist('C','var')
@@ -143,14 +147,20 @@ end
         end
     end
 %Combine the image data into an HDR image.
-    HDR = zeros(C.aoi(3:4));
-    %INCOMPLETE
-    
+    E = exposure(1)*ones(size(A,1),size(A,2));
+    tA = A;% - D;
+    HDR = tA(:,:,1);
+    for i=2:size(tA,3)
+        oA = tA(:,:,i-1);
+        cA = tA(:,:,i);
+        E(oA>1022) = exposure(i);
+        HDR(oA > 1022) = cA(oA > 1022) * exposure(1) / exposure(i);
+    end
 %Compress the HDR data into an LDR image.
-    LDR = zeros(C.aoi(3:4));
-    %INCOMPLETE
+    LDR = zeros(size(A,1),size(A,2));
     
-    if ~setC
+    
+    if ~setC && ~existA
         delete(C);
         clear C;
     end
