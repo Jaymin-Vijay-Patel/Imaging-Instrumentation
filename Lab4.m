@@ -30,19 +30,26 @@
 % end
 % %Part 3. Compress image data into a HDR image.
 %     LDR = capture_hdr(A);
-H = log(HDR);
-[Hx,Hy] = imgradientxy(H,'IntermediateDifference');
-alpha = .1 * mean(abs([Hx(:); Hy(:)]));
-beta = .85;
-Phi = calcphi(H,alpha,beta,5);
-Gx = Hx.*Phi;
-Gy = Hy.*Phi;
-G = [Gx(:); Gy(:)];
-logImgOut = reshape(cgs(@(I)gradAT(gradA(I)),gradAT(G)), 1280, 1024);
-imgOut = exp(logImgOut);
+% H = log(hdr_A);
+% [Hx,Hy] = imgradientxy(H,'CentralDifference');
+% alpha = .1 * mean(abs([Hx(:); Hy(:)]));
+% beta = .85;
+% Phi = calcphi(H,alpha,beta,5);
+% Gx = Hx.*Phi;
+% Gy = Hy.*Phi;
+% G = [Gx(:); Gy(:)];
+% AtG = gradAT(G, size(H));
+% logImgOut = reshape(cgs(@(Img) gradAT(gradA(Img,size(H)), size(H)),AtG,[],1000), size(H));
+% imgOut = exp(logImgOut);
 
 %least squares conjugate gradient approach
 
 
+num_over = zeros(size(A,3),1);
+for i=1:numel(num_over)
+    cA = A(:,:,i);
+    flatcA = cA(:);
+    num_over(i) = sum(flatcA > 1022);
+end
 % delete(C);
 % clear C;

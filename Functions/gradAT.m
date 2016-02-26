@@ -1,19 +1,29 @@
-function Out = gradAT( In )
-%GRADAT Summary of this function goes here
+function Out = gradAT( In, sizes )
+%GRADA Summary of this function goes here
 %   Detailed explanation goes here
 
-Out = zeros(numel(In)/2,1);
-for i = 1:numel(Out)/2
-    Out(i) = -In(i);
-    Out(i+1280*1024/2) = In(i); 
+r = sizes(1);
+c = sizes(2);
+assert(2*r*c == numel(In));
+Out = zeros(r*c,1);
+for i=1:r
+    Out(i) = -In(i) - In(i+r);
 end
-for i = 1:numel(Out)/2
-    if i==1
-        Out(i) = -In(i+1280*1024);
-    elseif i>1 && i<1280*1024
-        Out(i) = In(i+1280*1024-1)-In(i+1280*1024);
+for i=r+1:r*c-r
+    Out(i) = In(i-r) - In(i+r);
+end
+for i=r*c-r+1:r*c
+    Out(i) = In(i-r) + In(i);
+end
+
+for i = 1:c*r
+    if mod(i-1, r) == 0
+        Out(i) = Out(i) - In(r*c+i+1) - In(r*c+i);
+    elseif mod(i,r) == 0
+        Out(i) = Out(i) + In(r*c+i) + In(r*c+i-1);
     else
-        Out(i) = In(i+1280*1024);
+        Out(i) = Out(i) - In(r*c+i+1) + In(r*c+i-1);
     end
 end
+
 end
