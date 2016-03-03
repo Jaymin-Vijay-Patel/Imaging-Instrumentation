@@ -34,7 +34,7 @@ function [LDR,HDR,A,E] = capture_hdr(varargin)
 %           Department of Biomedical Engineering
 %           Johns Hopkins University, Baltimore, MD.
 %E-mail:    nathan.crookston@gmail.com, slee333@jhu.edu, jpatel18@jhmi.edu
-%Revision:  02/24/16
+%Revision:  03/03/16
 %---------------------------------------------------
 
 %SET INPUTS
@@ -124,12 +124,12 @@ end
 %Assign exposure.
     if isfield(P,'exposure')
         if ~exist('A','var')
-%             if any(P.exposure<C.exposurerange(1))
-%                 throw(MException([mfilename ':in_exposure'],['\t"exposure" must be greater than ' num2str(C.exposurerange(1)) '.']));
-%             end
-%             if any(P.exposure>C.exposurerange(3))
-%                 throw(MException([mfilename ':in_exposure'],['\t"exposure" must be less than ' num2str(C.exposurerange(3)) '.']));
-%             end
+            if any(P.exposure<C.exposurerange(1))
+                throw(MException([mfilename ':in_exposure'],['\t"exposure" must be greater than ' num2str(C.exposurerange(1)) '.']));
+            end
+            if any(P.exposure>C.exposurerange(3))
+                throw(MException([mfilename ':in_exposure'],['\t"exposure" must be less than ' num2str(C.exposurerange(3)) '.']));
+            end
         end
         exposure = P.exposure;
     elseif ~exist('exposure','var')
@@ -147,21 +147,28 @@ end
         end
     end
 %Combine the image data into an HDR image.
-    E = exposure(1)*ones(size(A,1),size(A,2));
-    tA = A;% - D;
-    HDR = tA(:,:,1);
-    for i=2:size(tA,3)
-        oA = tA(:,:,i-1);
-        cA = tA(:,:,i);
-        E(oA>1022) = exposure(i);
-        HDR(oA > 1022) = cA(oA > 1022) * exposure(1) / exposure(i);
+    E = exposure(1)*ones(size(A,1),size(A,2)); %Exposure used for each pixel.
+    HDR = A(:,:,1);
+    for i = 2:size(A,3)
+        Ap = A(:,:,i-1); %Prior exposure.
+        Ac = A(:,:,i); %Current exposure.
+        E(Ap>1022) = exposure(i);
+        HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
     end
 %Compress the HDR data into an LDR image.
-    LDR = zeros(size(A,1),size(A,2));
-    
-    
-    if ~setC && ~existA
-        delete(C);
-        clear C;
-    end
+    H = log(HDR);
+    [Hx,Hy] = imgradientxy(H,'CentralDifference');
+    alpha = .1 * mean(abs([Hx(:); Hy(:)]));
+    beta = .85;
+    Phi = calcphi(H,alpha,beta,5);
+    Gx = Hx.*Phi;
+    Gy = Hy.*Phi;
+    G = [Gx(:); Gy(:)];
+    AtG = calcgradt(G,size(H));
+    I = reshape(cgs(@(x)calcgradt(calcgrad(x,size(H)),size(H)),AtG,[],1000),size(H));
+    LDR = exp(I);
+if ~setC && ~existA
+    delete(C);
+    clear C;
+end
 end
