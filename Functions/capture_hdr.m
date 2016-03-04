@@ -5,6 +5,7 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
 %           LDR = CAPTURE_HDR(...,C)
 %           LDR = CAPTURE_HDR(...,parameter)
 %           LDR = CAPTURE_HDR(...,A)
+%           LDR = CAPTURE_HDR(...,mode)
 %           [LDR,HDR] = CAPTURE_HDR(...)
 %           [LDR,HDR,A] = CAPTURE_HDR(...)
 %
@@ -20,9 +21,6 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
 %                       exposure    [exposurerange(2),exposurerange(3)] doubles Exposure times in milliseconds.
 %                       frames      [1,inf) integers {1}                        Number of frames.
 %           A         - Images at each exposure.
-%           scale     - Set scale factor when combining images from different exposure times into an LDR.
-%                       {'exposure'} Exposure time.
-%                       'mean'       Image mean.
 %           mode      - Determines whether to only assign certain outputs. All outputs are assigned by default.
 %                       'capture'   Only captures images at each exposure.
 %                       'hdr'       Only returns the HDR image. 
@@ -70,9 +68,7 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
             varargin(n) = [];
             n = n-1;
         elseif ischar(varargin{n})
-            if any(strcmp(varargin{n},{'exposure','mean'}))
-                scale = varargin{n};
-            elseif any(strcmp(varargin{n},{'','capture','hdr'}))
+            if any(strcmp(varargin{n},{'','capture','hdr'}))
                 mode = varargin{n};
             end
             varargin(n) = [];
@@ -146,22 +142,13 @@ end
             end
         end
         exposure = P.exposure;
+        exposure = sort(exposure,'descend');
     elseif ~exist('exposure','var')
         if ~exist('C','var')
             C.exposurerange(1) = 0.009;
             C.exposurerange(3) = 227.806;
         end
-        i = 0;
-        exposure = []; %Exposure times separated by factors of 2 in milliseconds.
-        while C.exposurerange(3)/(2^i)>C.exposurerange(1)
-            exposure(i+1) = C.exposurerange(3)/(2^i); %#ok<AGROW>
-            i = i+1;
-        end
-        exposure(end+1) = C.exposurerange(1);
-    end
-%Assign scale.
-    if ~exist('scale','var')
-        scale = 'exposure';
+        exposure = linspace(C.exposurerange(3),C.exposurerange(1),100);
     end
 %Assign mode.
     if ~exist('mode','var')
@@ -182,20 +169,11 @@ end
     HDR = zeros(size(A));
     if ~strcmp(mode,'capture')
         HDR = A(:,:,1);
-        if strcmp(scale,'mean')
-            Amean = zeros(size(A,3),1);
-            Amean(1) = mean2(A(:,:,1));
-        end
         for i = 2:size(A,3)
             Ap = A(:,:,i-1); %Prior exposure.
             Ac = A(:,:,i); %Current exposure.
             E(Ap>1022) = exposure(i);
-            if strcmp(scale,'exposure')
-                HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
-            elseif strcmp(scale,'mean')
-                Amean(i) = mean2(Ac);            
-                HDR(Ap>1022) = Ac(Ap>1022)*Amean(1)/Amean(i);
-            end
+            HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
         end
     end
 %Compress the HDR data into an LDR image.
@@ -204,7 +182,7 @@ end
         H = log(HDR);
         [Hx,Hy] = imgradientxy(H,'CentralDifference');
         alpha = .1 * mean(abs([Hx(:); Hy(:)]));
-        beta = .85;
+        beta = .9;
         Phi = calcphi(H,alpha,beta,5);
         Gx = Hx.*Phi;
         Gy = Hy.*Phi;
