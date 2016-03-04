@@ -57,9 +57,13 @@ pixelclock = 7; %Set the speed of pixel readout.
         [~,HDR_F{f},E_F{f}] = capture_hdr(As(:,:,fi{f}),{'exposure',F_exp{f}},'hdr');
     end
     
-%Part 3. Compress image data into a HDR image.
-    LDR = capture_hdr(A,{'exposure',exposure});
-    LDRs = capture_hdr(As,{'exposure',exposure});
+%Part 3. Compress image data into a HDR image using different beta values.
+    [LDR8,~,~,~,Phi8] = capture_hdr(A,{'exposure',exposure},0.8); %610 iterations
+    [LDRs8,~,~,~,Phis8] = capture_hdr(As,{'exposure',exposure},0.8); %631 iterations
+    [LDR85,~,~,~,Phi85] = capture_hdr(A,{'exposure',exposure},0.85);
+    [LDRs85,~,~,~,Phis85] = capture_hdr(As,{'exposure',exposure},0.85);
+    [LDR9,~,~,~,Phi9] = capture_hdr(A,{'exposure',exposure},0.9); %855 iterations.
+    [LDRs9,~,~,~,Phis9] = capture_hdr(As,{'exposure',exposure},0.9);
 
 delete(C);
 clear C;
@@ -105,4 +109,38 @@ clear C;
         title('Exposures log spaced');
         
     %Figure 6. Number of saturated pixels at each exposure time.
+    
+    %Figure 7: Gradient attenuation factors used for HDR compression with alpha = 0.1*average gradient magnitude and beta = 0.8, 0.85, and 0.9.
+        figure; colormap('gray');
+        subplot(2,2,1); imagesc(log(abs(Phis9'))); axis('image'); colorbar;
+        title('Beta = 0.9 subtracted dark current');
+        subplot(2,2,2); imagesc(log(abs(Phis8'))); axis('image'); colorbar;
+        title('Beta = 0.8 subtracted dark current');
+        subplot(2,2,3); imagesc(log(abs(Phi9'))); axis('image'); colorbar;
+        title('Beta = 0.9');
+        subplot(2,2,4); imagesc(log(abs(Phis85'))); axis('image'); colorbar;
+        title('Beta = 0.85 subtracted dark current');
         
+    %Figure 8. 
+        figure; colormap('gray');
+        subplot(3,2,1); imagesc(LDRs8'); axis('image'); colorbar;
+        title('Beta = 0.8 subtracted dark current');
+        subplot(3,2,3); imagesc(LDRs85'); axis('image'); colorbar;
+        title('Beta = 0.85 subtracted dark current');
+        subplot(3,2,5); imagesc(LDRs9'); axis('image'); colorbar;
+        title('Beta = 0.9 subtracted dark current');
+        subplot(3,2,2); imagesc(LDR8'); axis('image'); colorbar;
+        title('Beta = 0.8');
+        subplot(3,2,4); imagesc(LDR85'); axis('image'); colorbar;
+        title('Beta = 0.85');
+        subplot(3,2,6); imagesc(LDR9'); axis('image'); colorbar;
+        title('Beta = 0.9');
+        
+    %Figure 9.
+        figure; colormap('gray');
+        subplot(2,1,1); imagesc(log(HDRs)'); axis('image'); colorbar;
+        title('Log scale HDR subtracted dark current');
+        subplot(2,1,2); imagesc(LDRs9'); axis('image'); colorbar;
+        title('LDR subtracted dark current Beta = 0.9');
+    
+    %Figure 10. Comparison of a scanline of column 350 in the original HDR image and the range-compressed image.

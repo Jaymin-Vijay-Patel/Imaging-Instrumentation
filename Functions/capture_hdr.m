@@ -1,4 +1,4 @@
-function [LDR,HDR,E,A] = capture_hdr(varargin)
+function [LDR,HDR,E,A,Phi] = capture_hdr(varargin)
 %CAPTURE_HDR Capture images to generate an HDR image with a DCC3240M camera.
 %
 %Syntax:    LDR = CAPTURE_HDR()
@@ -21,6 +21,7 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
 %                       exposure    [exposurerange(2),exposurerange(3)] doubles Exposure times in milliseconds.
 %                       frames      [1,inf) integers {1}                        Number of frames.
 %           A         - Images at each exposure.
+%           beta      - Gradient magnification/attenuation factor.
 %           mode      - Determines whether to only assign certain outputs. All outputs are assigned by default.
 %                       'capture'   Only captures images at each exposure.
 %                       'hdr'       Only returns the HDR image. 
@@ -29,6 +30,7 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
 %           HDR - HDR image.
 %           E   - Image with exposure chosen at each pixel.
 %           A   - Images at each exposure.
+%           Phi - Gradient attenuation factor.
 %
 %See also:
 %Required   CAMERA, CAPTURE_FRAMES.
@@ -64,7 +66,11 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
                 throw(MException([mfilename ':in_varargin'],'\tUnrecognized cell input.'));
             end
         elseif isnumeric(varargin{n})
-            A = varargin{n};
+            if numel(varargin{n})>1
+                A = varargin{n};
+            elseif numel(varargin{n})==1
+                beta = varargin{n};
+            end
             varargin(n) = [];
             n = n-1;
         elseif ischar(varargin{n})
@@ -150,6 +156,10 @@ end
         end
         exposure = linspace(C.exposurerange(3),C.exposurerange(1),100);
     end
+%Assign beta.
+    if ~exist('beta','var')
+        beta = 0.9;
+    end
 %Assign mode.
     if ~exist('mode','var')
         mode = '';
@@ -182,7 +192,6 @@ end
         H = log(HDR);
         [Hx,Hy] = imgradientxy(H,'CentralDifference');
         alpha = .1 * mean(abs([Hx(:); Hy(:)]));
-        beta = .9;
         Phi = calcphi(H,alpha,beta,5);
         Gx = Hx.*Phi;
         Gy = Hy.*Phi;
