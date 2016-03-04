@@ -20,6 +20,9 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
 %                       exposure    [exposurerange(2),exposurerange(3)] doubles Exposure times in milliseconds.
 %                       frames      [1,inf) integers {1}                        Number of frames.
 %           A         - Images at each exposure.
+%           scale     - Set scale factor when combining images from different exposure times into an LDR.
+%                       {'exposure'} Exposure time.
+%                       'mean'       Image mean.
 %           mode      - Determines whether to only assign certain outputs. All outputs are assigned by default.
 %                       'capture'   Only captures images at each exposure.
 %                       'hdr'       Only returns the HDR image. 
@@ -67,7 +70,11 @@ function [LDR,HDR,E,A] = capture_hdr(varargin)
             varargin(n) = [];
             n = n-1;
         elseif ischar(varargin{n})
-            mode = varargin{n};
+            if any(strcmp(varargin{n},{'exposure','mean'}))
+                scale = varargin{n};
+            elseif any(strcmp(varargin{n},{'','capture','hdr'}))
+                mode = varargin{n};
+            end
             varargin(n) = [];
             n = n-1;
         end
@@ -152,12 +159,13 @@ end
         end
         exposure(end+1) = C.exposurerange(1);
     end
+%Assign scale.
+    if ~exist('scale','var')
+        scale = 'exposure';
+    end
 %Assign mode.
     if ~exist('mode','var')
         mode = '';
-    end
-    if ~any(strcmp(mode,{'','capture','hdr'}))
-        throw(MException([mfilename ':in_mode'],'\t"mode" must be any empty string, ''capture'', or ''hdr''.'));
     end
 %---------------------------------------------------
 %RUN FUNCTION
@@ -174,11 +182,20 @@ end
     HDR = zeros(size(A));
     if ~strcmp(mode,'capture')
         HDR = A(:,:,1);
+        if strcmp(scale,'mean')
+            Amean = zeros(size(A,3),1);
+            Amean(1) = mean2(A(:,:,1));
+        end
         for i = 2:size(A,3)
             Ap = A(:,:,i-1); %Prior exposure.
             Ac = A(:,:,i); %Current exposure.
             E(Ap>1022) = exposure(i);
-            HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
+            if strcmp(scale,'exposure')
+                HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
+            elseif strcmp(scale,'mean')
+                Amean(i) = mean2(Ac);            
+                HDR(Ap>1022) = Ac(Ap>1022)*Amean(1)/Amean(i);
+            end
         end
     end
 %Compress the HDR data into an LDR image.

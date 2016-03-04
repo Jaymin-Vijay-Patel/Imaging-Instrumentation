@@ -20,9 +20,10 @@ pixelclock = 7; %Set the speed of pixel readout.
         exposure = exposure(end:-1:1);
         [~,~,~,A] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames},'capture'); %Images of scene at each exposure.
         [~,~,~,D] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames},'capture'); %Dark current images at each exposure.
-        di = A<1022;
+        di = A<1023;
         As = A;
         As(di) = A(di)-D(di); %Image with dark current signal subtracted.
+        As(As<0) = 0;
     %B. Determine which exposure times to use.
         F = [1.3,1.5,2]; %Determine a factor that generates a good HDR image.
         F_exp = cell(numel(F),1); %Exposure times separated by factors in milliseconds.
