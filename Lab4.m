@@ -82,22 +82,27 @@ clear C;
         subplot(1,3,3); imagesc(D(:,:,60)'); axis('image'); colorbar;
         title('Dark current');
     
-    %Figure 4. Number of saturated pixels at each exposure time.
-        
+    %Figure 4. Comparing HDR images obtained with and without subtracting dark current noise using 100 exposures equispaced.
+        figure; colormap('gray');
+        subplot(1,2,1); imagesc(log(HDR')); axis('image'); colorbar;
+        title('HDR with dark current noise');
+        subplot(1,2,2); imagesc(log(HDRs')); axis('image'); colorbar;
+        title('HDR with subtracted dark current noise');
+    
     %Figure 5. Comparing equispaced HDR images to factor (1.3, 1.5, 2, 10) spaced HDR images.
         figure; colormap('gray');
-        subplot(3,2,1); imagesc(HDRs'); axis('image'); colorbar;
+        subplot(3,2,1); imagesc(log(HDRs')); axis('image'); colorbar;
         title('100 exposures equispaced');
-        subplot(3,2,3); imagesc(HDRs_2'); axis('image'); colorbar;
+        subplot(3,2,3); imagesc(log(HDRs_2')); axis('image'); colorbar;
         title('50 exposures equispaced');
-        subplot(3,2,5); imagesc(HDRs_4'); axis('image'); colorbar;
+        subplot(3,2,5); imagesc(log(HDRs_4')); axis('image'); colorbar;
         title('25 exposures equispaced');
-        subplot(3,2,2); imagesc(HDR_F{1}'); axis('image'); colorbar;
+        subplot(3,2,2); imagesc(log(HDR_F{1}')); axis('image'); colorbar;
         title('Exposures spaced by factors of 1.3');
-        subplot(3,2,4); imagesc(HDR_F{3}'); axis('image'); colorbar;
+        subplot(3,2,4); imagesc(log(HDR_F{3}')); axis('image'); colorbar;
         title('Exposures spaced by factors of 2');
-        subplot(3,2,6); imagesc(HDR_F{4}'); axis('image'); colorbar;
+        subplot(3,2,6); imagesc(log(HDR_F{4}')); axis('image'); colorbar;
         title('Exposures log spaced');
         
-    %Figure 6. HDR images obtained by combining images at different exposure times.
+    %Figure 6. Number of saturated pixels at each exposure time.
         
