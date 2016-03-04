@@ -1,4 +1,4 @@
-function [LDR,HDR,A,E] = capture_hdr(varargin)
+function [LDR,HDR,E,A] = capture_hdr(varargin)
 %CAPTURE_HDR Capture images to generate an HDR image with a DCC3240M camera.
 %
 %Syntax:    LDR = CAPTURE_HDR()
@@ -20,11 +20,14 @@ function [LDR,HDR,A,E] = capture_hdr(varargin)
 %                       exposure    [exposurerange(2),exposurerange(3)] doubles Exposure times in milliseconds.
 %                       frames      [1,inf) integers {1}                        Number of frames.
 %           A         - Images at each exposure.
+%           mode      - Determines whether to only assign certain outputs. All outputs are assigned by default.
+%                       'capture'   Only captures images at each exposure.
+%                       'hdr'       Only returns the HDR image. 
 %
 %Output:    LDR - LDR image.
 %           HDR - HDR image.
-%           A   - Images at each exposure.
 %           E   - Image with exposure chosen at each pixel.
+%           A   - Images at each exposure.
 %
 %See also:
 %Required   CAMERA, CAPTURE_FRAMES.
@@ -61,6 +64,10 @@ function [LDR,HDR,A,E] = capture_hdr(varargin)
             end
         elseif isnumeric(varargin{n})
             A = varargin{n};
+            varargin(n) = [];
+            n = n-1;
+        elseif ischar(varargin{n})
+            mode = varargin{n};
             varargin(n) = [];
             n = n-1;
         end
@@ -135,6 +142,13 @@ end
     elseif ~exist('exposure','var')
         exposure = logspace(log10(0.009),log10(227.806),10); 
     end
+%Assign mode.
+    if ~exist('mode','var')
+        mode = '';
+    end
+    if ~any(strcmp(mode,{'','capture','hdr'}))
+        throw(MException([mfilename ':in_mode'],'\t"mode" must be any empty string, ''capture'', or ''hdr''.'));
+    end
 %---------------------------------------------------
 %RUN FUNCTION
 %---------------------------------------------------
@@ -148,25 +162,31 @@ end
     end
 %Combine the image data into an HDR image.
     E = exposure(1)*ones(size(A,1),size(A,2)); %Exposure used for each pixel.
-    HDR = A(:,:,1);
-    for i = 2:size(A,3)
-        Ap = A(:,:,i-1); %Prior exposure.
-        Ac = A(:,:,i); %Current exposure.
-        E(Ap>1022) = exposure(i);
-        HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
+    HDR = zeros(size(A));
+    if ~strcmp(mode,'capture')
+        HDR = A(:,:,1);
+        for i = 2:size(A,3)
+            Ap = A(:,:,i-1); %Prior exposure.
+            Ac = A(:,:,i); %Current exposure.
+            E(Ap>1022) = exposure(i);
+            HDR(Ap>1022) = Ac(Ap>1022)*exposure(1)/exposure(i);
+        end
     end
 %Compress the HDR data into an LDR image.
-    H = log(HDR);
-    [Hx,Hy] = imgradientxy(H,'CentralDifference');
-    alpha = .1 * mean(abs([Hx(:); Hy(:)]));
-    beta = .85;
-    Phi = calcphi(H,alpha,beta,5);
-    Gx = Hx.*Phi;
-    Gy = Hy.*Phi;
-    G = [Gx(:); Gy(:)];
-    AtG = calcgradt(G,size(H));
-    I = reshape(cgs(@(x)calcgradt(calcgrad(x,size(H)),size(H)),AtG,[],1000),size(H));
-    LDR = exp(I);
+    LDR = zeros(size(A));
+    if ~any(strcmp(mode,{'capture','hdr'}))
+        H = log(HDR);
+        [Hx,Hy] = imgradientxy(H,'CentralDifference');
+        alpha = .1 * mean(abs([Hx(:); Hy(:)]));
+        beta = .85;
+        Phi = calcphi(H,alpha,beta,5);
+        Gx = Hx.*Phi;
+        Gy = Hy.*Phi;
+        G = [Gx(:); Gy(:)];
+        AtG = calcgradt(G,size(H));
+        I = reshape(cgs(@(x)calcgradt(calcgrad(x,size(H)),size(H)),AtG,[],1000),size(H));
+        LDR = exp(I);
+    end
 if ~setC && ~existA
     delete(C);
     clear C;

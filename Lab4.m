@@ -16,14 +16,14 @@ pixelclock = 7; %Set the speed of pixel readout.
     exposure = linspace(0.009,227.806,100);
     exposure = exposure(end:-1:1);
 %     exposure = logspace(log10(0.009),log10(227.806),10); %Exposure times in milliseconds.
-    [~,~,A] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames});
-    [~,~,D] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames});
+    [~,~,~,A] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames},'capture'); %Images of scene at each exposure.
+    [~,~,~,D] = capture_hdr(C,{'pixelclock',7},{'aoi',aoi},{'exposure',exposure},{'frames',frames},'capture'); %Dark current images at each exposure.
     
 %Part 2. Determine an algorithm to assemble a HDR data set.
-    [~,HDR,~,E] = capture_hdr(A,{'exposure',exposure});
+    [~,HDR,E] = capture_hdr(A,{'exposure',exposure},'hdr');
     
 %Part 3. Compress image data into a HDR image.
-    LDR = capture_hdr(A);
+    LDR = capture_hdr(A,{'exposure',exposure});
 
 delete(C);
 clear C;
