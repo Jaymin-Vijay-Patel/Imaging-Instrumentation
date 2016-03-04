@@ -140,7 +140,17 @@ end
         end
         exposure = P.exposure;
     elseif ~exist('exposure','var')
-        exposure = logspace(log10(0.009),log10(227.806),10); 
+        if ~exist('C','var')
+            C.exposurerange(1) = 0.009;
+            C.exposurerange(3) = 227.806;
+        end
+        i = 0;
+        exposure = []; %Exposure times separated by factors of 2 in milliseconds.
+        while C.exposurerange(3)/(2^i)>C.exposurerange(1)
+            exposure(i+1) = C.exposurerange(3)/(2^i); %#ok<AGROW>
+            i = i+1;
+        end
+        exposure(end+1) = C.exposurerange(1);
     end
 %Assign mode.
     if ~exist('mode','var')
@@ -156,7 +166,6 @@ end
     if ~exist('A','var')
         A = zeros([C.aoi(3:4) numel(exposure)]);
         for i = 1:numel(exposure)
-            exposure(i)
             [~,A(:,:,i)] = capture_frames(C,{'exposure',exposure(i)},{'frames',frames},varargin{:});
         end
     end
