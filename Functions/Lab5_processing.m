@@ -1,11 +1,11 @@
 % Processing for Refelctive data
-load transfer_functions.mat
-load Lab5_Reflective.mat
-load Lab5_Transmissive.mat
-load D  % Dark current data. Dref (when exp = 100ms) came from D(:,:,57) of Lab4_D. Dtrans (exp =25ms) from D(:,:,89).
+% load transfer_functions.mat
+% load Lab5_Reflective.mat
+% load Lab5_Transmissive.mat
+% load D  % Dark current data. Dref (when exp = 100ms) came from D(:,:,57) of Lab4_D. Dtrans (exp =25ms) from D(:,:,89).
 
 % Reflective
-R3d = cat(3,R{:})-repmat(Dref,1,1,6);  %Subtract Dark Current
+R3d = cat(3,R{:})-repmat(Dall,1,1,6);  %Subtract Dark Current
 
 ep = 0.0001;
 Dinv = pinv(diag(db1+ep))*pinv(diag(dl+ep))*pinv(diag(ds+ep));
@@ -22,16 +22,12 @@ for row = 1:1280
     end
 end
 
-rgbp = rgb/max(max(max(rgb)));
-for i =1:3
-    rgb_ref(:,:,i) = rgbp(:,:,i)';
-end
-
+rgb_ref = permute(rgb/max(rgb(:)), [2 1 3]);
 figure; imagesc(rgb_ref);
 
 % Transmissive
 
-R3d = cat(3,T{:})-repmat(Dtrans,1,1,7);  % Subtract Dark current
+R3d = cat(3,T{:})-repmat(Dall,1,1,7);  % Subtract Dark current
 
 ep = 0.0001;
 Dinv = pinv(diag(db1+ep))*pinv(diag(dl+ep))*pinv(diag(ds+ep));
@@ -54,3 +50,10 @@ for i =1:3
 end
 
 figure; imagesc(rgb_trans);
+%%
+color_energy = 1 ./ sum(L,1);
+%color_energy = 1 ./ max(L,[],1);
+%color_energy = [1 1 1];
+bd_ref = cat(3, R{[2,4,5]}) .* repmat(reshape(color_energy,1,1,3), 1280, 1024);%size(R(2),2), size(R(2),1));
+
+figure; imagesc(permute(bd_ref/max(bd_ref(:)), [2 1 3]));
