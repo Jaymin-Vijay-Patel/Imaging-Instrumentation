@@ -2,8 +2,8 @@
 img_pixels = 32;
 img = zeros(img_pixels);
 sy = size(y,1);
-%mask = 2/img_pixels * abs(arrayfun(@(x) (x < sy/2) * (x+.5) + (x >= sy/2) * (x-sy+.5), 0:sy-1))';
-%fy = real(ifft(fft(y') * diag(mask))');
+%mask = 2/img_pixels * abs(linspace(-1,1,sy));%abs(arrayfun(@(x) (x < sy/2) * (x+.5) + (x >= sy/2) * (x-sy+.5), 0:sy-1))';
+%fy = real(ifft(ifftshift(fftshift(fft(y')) * diag(mask)))');
 fy = y;
 
 %assuming SAD, pixels size both in mm (or at least, same units).
