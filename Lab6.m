@@ -1,28 +1,32 @@
-img = zeros(size(y,1));
+%img_pixels = size(y,1);
+img_pixels = 32;
+img = zeros(img_pixels);
+sy = size(y,1);
+%mask = 2/img_pixels * abs(arrayfun(@(x) (x < sy/2) * (x+.5) + (x >= sy/2) * (x-sy+.5), 0:sy-1))';
+%fy = real(ifft(fft(y') * diag(mask))');
+fy = y;
 
 %assuming SAD, pixels size both in mm (or at least, same units).
-uip = horzcat(pixelsize * ((1:size(y,1))' - (size(y,1)+1)/2), ...
-              zeros(numel(uxip),1));
-%The unrotaed focal point of the system
-ufpt = [0 SAD];
-
-a_deg = 10;
-a = deg2rad(a_deg);
-
-R = [cos(a) sin(a); -sin(a) cos(a)];
-ip = uip * R;
-fpt = ufpt * R;
+find_centers = @(n) pixelsize * sy / n * ((1:n)' - (n+1)/2);
+fp_centers = find_centers(sy);
+%The unrotated focal point of the system
+fpt = [0 SAD];
+find_pt = @(rx,ry) fp_centers(1) + ...
+    find_t([fp_centers(1) 0],[fp_centers(end) 0],fpt,[rx ry]) * ...
+    (fp_centers(end)-fp_centers(1));
 
 %The centers of each pixel of img
-[ppx, ppy] = meshgrid(uxip, uxip);
-img_side = size(y,1) * pixelsize;
+pixel_centers = find_centers(img_pixels);
+[xpl, ypl] = meshgrid(pixel_centers(:,1), pixel_centers(:,1));
+img_side = img_pixels * pixelsize;
 
-%For each point in ip, traverse the line from the front face of img to the
-% back.
+for i = 1:360
+    a = -deg2rad(i-1);
 
-%There are a few different ways to do this.  One, we can traverse the line
-% in small steps and increment the contribution to a particular pixel
-% each time the step is within that pixel.
-%Or, we can figure out the major axis of traversal, x or y, find the
-% traversed distance between rows in that direction, and go row by row,
-% adding the contribution to each pixel proportionally.
+    R = [cos(a) -sin(a); sin(a) cos(a)];
+    rpl = [xpl(:) ypl(:)] * R;
+
+    xs = arrayfun(find_pt, rpl(:,1), rpl(:,2));
+    vals = reshape(interp1(fp_centers, fy(:,i), xs), size(img));
+    img = img + vals;
+end
