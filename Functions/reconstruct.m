@@ -20,7 +20,7 @@ pixel_centers = find_centers(img_pixels);
 [xpl, ypl] = meshgrid(pixel_centers(:,1), pixel_centers(:,1));
 
 for i = 1:360
-    a = deg2rad(i-1);
+    a = -deg2rad(i-1);
 
     R = [cos(a) -sin(a); sin(a) cos(a)];
     rpl = [xpl(:) ypl(:)] * R;
