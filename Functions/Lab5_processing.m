@@ -12,15 +12,9 @@ Dinv = pinv(diag(db1+ep))*pinv(diag(dl+ep))*pinv(diag(ds+ep));
 L_diag = pinv(L'*L)*L';
 F_diag = F(1:5,:)'*pinv(F(1:5,:)*F(1:5,:)');
 
-R3dd = R3d(:,:,1:5);
 rgb = zeros(1280,1024,3);
 A = L_diag*Dinv*F_diag;
-
-for row = 1:1280
-    for col = 1:1024
-        rgb(row,col,:) = A*squeeze(R3d(row,col,1:5)); %Inefficient. Takes longer time
-    end
-end
+rgb = repmat(reshape(A,1,1,3,5), 1280, 1024) * reshape(R3d(:,:,1:5), 1280,1024,5,1);
 
 rgb_ref = permute(rgb/max(rgb(:)), [2 1 3]);
 figure; imagesc(rgb_ref);
@@ -34,7 +28,6 @@ Dinv = pinv(diag(db1+ep))*pinv(diag(dl+ep))*pinv(diag(ds+ep));
 L_diag = pinv(L'*L)*L';
 F_diag2 = F(1:5,:)'*pinv(F(1:5,:)*F(1:5,:)');
 
-R3dd2 = R3d(:,:,1:5);
 rgb2 = zeros(1280,1024,3);
 A2 = L_diag*Dinv*F_diag2;
 
@@ -44,11 +37,8 @@ for row = 1:1280
     end
 end
 
-rgbp2 = rgb2/max(max(max(rgb2)));
-for i =1:3
-    rgb_trans(:,:,i) = rgbp2(:,:,i)';
-end
 
+rgb_trans = permute(rgb2/max(rgb2(:)), [2 1 3]);
 figure; imagesc(rgb_trans);
 %%
 color_energy = 1 ./ sum(L,1);
