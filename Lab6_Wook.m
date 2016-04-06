@@ -63,12 +63,13 @@ end
 %     u0 = 107; % For phantom4_550
 %     u0 = 103; % For phantom4_nofilter
 
-    SAD = 393.03; %mm
-    pixelsize = 0.054; %mm
-    
-    images = phantommag_nofilter;
-    I0 = nophantom_nofilter;
-    u0 = u0s.phantommag_nofilter;
+
+    curr_pixelsize = 0.054; %mm
+
+    curr_sad = sad_550; %mm
+    images = phantommag_550;
+    I0 = nophantom_550;
+    u0 = u0s.phantommag_550;
     dark_current_100 = D25;
     
     images_slice = double(images(:,502:522,:));
@@ -76,9 +77,9 @@ end
     I0_slice = double(repmat(I0(:,502:522),1,1,360));
     sinogram = squeeze(mean((images_slice-dark_current_100_slice)./I0_slice,2));
     if u0 > 0
-        recon = reconstruct(sinogram(u0:end,:), 512, SAD, pixelsize);
+        recon = reconstruct(sinogram(u0:end,:), 512, curr_sad, curr_pixelsize);
     elseif u0 < 0
-        recon = reconstruct(sinogram(1:end+u0,:), 512, SAD, pixelsize);
+        recon = reconstruct(sinogram(1:end+u0,:), 512, curr_sad, curr_pixelsize);
     end
     figure; imagesc(recon); axis equal; colorbar; colormap gray; 
     title('Title'); axis([0 512 0 512]);

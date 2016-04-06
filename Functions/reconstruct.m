@@ -5,7 +5,7 @@ function [ img ] = reconstruct( sgram, img_pixels, sad, pixelsize )
 %img_pixels = size(y,1);
 img = zeros(img_pixels);
 sy = size(sgram,1);
-mask = 2/img_pixels * abs(linspace(-1,1,sy));
+mask = .07 * abs(linspace(-1,1,sy));
 ly = -log(sgram);
 fy = real(ifft((ifftshift(fftshift(fft(ly))' * diag(mask))')));
 
