@@ -54,28 +54,25 @@ function [recon_image,sinogram,u0,sinogram_u0] = reconstruct(images,lines,I0,dar
     log_sinogram = -log(sinogram_u0); %Attentuation coefficients from exponential.
     weighting_function = 2/recon_pixels*abs(linspace(-1,1,proj_pixels)); %Weighting function to approximate pie-shaped regions in Fourier space from strip-shaped regions.
     filtered_sinogram = real(ifft((ifftshift(fftshift(fft(log_sinogram))'*diag(weighting_function))'))); %Applying weighting function in Fourier space.
-
-proj_centers = find_centers(proj_pixels,proj_pixels,pixel_size);
-cg = [0 SAD]; %The unrotated focal point of the system.
-
-recon_centers = find_centers(recon_pixels,proj_pixels,pixel_size); %The distance from centers of each pixel of recon_img to the center of recon_img in mm.
-[X0,Y0] = meshgrid(recon_centers,recon_centers);
-
-recon_image = zeros(recon_pixels); %Reconstructed image.
-for i = 1:size(images,3)
-    theta = -deg2rad(i-1);
-    R_theta = [cos(theta) -sin(theta); sin(theta) cos(theta)];
-    XY_theta = [X0(:) Y0(:)]*R_theta;
-
-    xs = cg(1) + cg(2) * (XY_theta(:,1) - cg(1)) ./ (cg(2) - XY_theta(:,2));
-    vals = reshape(interp1(proj_centers, filtered_sinogram(:,i), xs), size(recon_image));
-    recon_image = recon_image+vals;
-end
-recon_image(recon_image<0) = 0;
-
+%Find pixel centers.
+    proj_centers = find_centers(proj_pixels,proj_pixels,pixel_size);
+    cg = [0 SAD]; %The unrotated focal point of the system.
+    recon_centers = find_centers(recon_pixels,proj_pixels,pixel_size); %The distance from centers of each pixel of recon_img to the center of recon_img in mm.
+    [X0,Y0] = meshgrid(recon_centers,recon_centers);
+%Reconstruct the image.
+    recon_image = zeros(recon_pixels); %Reconstructed image.
+    for i = 1:size(images,3)
+        theta = -deg2rad(i-1);
+        R_theta = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+        XY_theta = [X0(:) Y0(:)]*R_theta;
+        XS = cg(1)+cg(2)*(XY_theta(:,1)-cg(1))./(cg(2)-XY_theta(:,2));
+        regrid_values = reshape(interp1(proj_centers,filtered_sinogram(:,i),XS),size(recon_image));
+        recon_image = recon_image+regrid_values;
+    end
+    recon_image(recon_image<0) = 0;
 end
 
-function pixel_centers = find_centers(recon_pixels,proj_pixels,pixel_size)
+function pixel_centers = find_centers(recon_pixels,proj_pixels,pixel_size) %Find pixel centers.
     R = (1:recon_pixels)'-(recon_pixels+1)/2;
     v = pixel_size*proj_pixels;
     n = recon_pixels;
