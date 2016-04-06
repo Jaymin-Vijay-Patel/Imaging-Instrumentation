@@ -20,7 +20,7 @@ frames = 1; %Number of frames to capture.
 %         %No Filter.
 %             exposure = 25;
 %             phantom4_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Yellow dye.
-%             phantommag_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Red, white, and blue dyes.
+%             phantommag_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Red and blue dyes.
 %         %Filters.
 %             exposure = 100;
 %             phantom4_450 = zeros([aoi(3) aoi(4) 360],'int16');
@@ -73,7 +73,4 @@ frames = 1; %Number of frames to capture.
 %         phantom_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,[],recon_pixels,SAD,pixel_size);
     %An example call to reconstruct.m with a measured u0.
         phantom4_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,u0.phantom4_450,recon_pixels,SAD,pixel_size);
-        
-%Generate figures for the report.
-    %Figure .
-    figure; imagesc(recon_image); axis equal; colorbar; colormap gray;
+        figure; imagesc(recon_image); axis equal; colorbar; colormap gray;
