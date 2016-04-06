@@ -76,3 +76,8 @@ frames = 1; %Number of frames to capture.
         figure; imagesc(phantom4_450_image); axis equal; colorbar; colormap gray;
         phantommag_600_image = reconstruct(phantommag_600,lines,nophantom_600,D100,u0.phantommag_600,recon_pixels,SAD,pixel_size);
         figure; imagesc(phantommag_600_image); axis equal; colorbar; colormap gray;
+        
+%Part 3. Analyze Data.
+    %An example for measuring the average concentration of a vial using define_aoi.m.
+        aoi_vial = define_aoi(phantom4_450_image);
+        mean_vial = mean2(phantom4_450_image(aoi_vial(1):aoi_vial(1)+aoi_vial(3),aoi_vial(2):aoi_vial(2)+aoi_vial(4)));
