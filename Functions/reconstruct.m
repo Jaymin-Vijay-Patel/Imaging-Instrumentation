@@ -39,7 +39,14 @@ function [recon_image,sinogram,u0,sinogram_u0] = reconstruct(images,lines,I0,dar
             title('Set u0.');
             [u0,~] = ginput(1);
             u0 = round(u0);
-            colormap('gray'); imagesc(sinogram(u0:end,:)');
+            if u0>size(sinogram,1)/2
+                u0 = u0-size(sinogram,1);
+            end
+            if u0>0
+                colormap('gray'); imagesc(sinogram(u0:end,:)');
+            elseif u0<0
+                colormap('gray'); imagesc(sinogram(1:end+u0,:)');
+            end            
             button = questdlg('Use this u0?','','Yes','No','Yes');
             if strcmp(button,'Yes')
                 close(h);
@@ -48,7 +55,11 @@ function [recon_image,sinogram,u0,sinogram_u0] = reconstruct(images,lines,I0,dar
             end
         end
     end
-    sinogram_u0 = sinogram(u0:end,:);
+    if u0>0
+        sinogram_u0 = sinogram(u0:end,:);
+    elseif u0<0
+        sinogram_u0 = sinogram(1:end+u0,:);
+    end
 %Filter the projections.
     proj_pixels = size(sinogram_u0,1); %Number of pixels in an individual projection.
     log_sinogram = -log(sinogram_u0); %Attentuation coefficients from exponential.

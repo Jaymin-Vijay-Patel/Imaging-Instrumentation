@@ -71,6 +71,8 @@ frames = 1; %Number of frames to capture.
         end
     %An example call to reconstruct.m with no specified u0.
 %         phantom_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,[],recon_pixels,SAD,pixel_size);
-    %An example call to reconstruct.m with a measured u0.
+    %Example calls to reconstruct.m with a measured u0.
         phantom4_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,u0.phantom4_450,recon_pixels,SAD,pixel_size);
-        figure; imagesc(recon_image); axis equal; colorbar; colormap gray;
+        figure; imagesc(phantom4_450_image); axis equal; colorbar; colormap gray;
+        phantommag_600_image = reconstruct(phantommag_600,lines,nophantom_600,D100,u0.phantommag_600,recon_pixels,SAD,pixel_size);
+        figure; imagesc(phantommag_600_image); axis equal; colorbar; colormap gray;
