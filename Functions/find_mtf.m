@@ -114,12 +114,22 @@ function [mtf,region] = find_mtf(A,type,varargin)
         A_fft = fft(A_lsf);
         mtf = zeros(size(A_fft,1),size(A_fft,1));
         center = size(mtf)/2;
+        
+        % Compute Distance Matrix
+        Colind = repmat((1:size(mtf,1)),size(mtf,1),1);
+        Rowind = repmat((1:size(mtf,1))',1,size(mtf,1));
+        Dmat = sqrt((Rowind-center(1)).^2 + (Colind-center(2)).^2);
         for i = 1:size(mtf,1)
-            for j = 1:size(mtf,2)
-                r = norm([i,j]-center);
-                mtf(i,j) = interp1(abs(A_fft),r+1);
-            end
+            mtf(:,i) = interp1(abs(A_fft),Dmat(:,i)+1);
         end
+         
+%         for i = 1:size(mtf,1)
+%             for j = 1:size(mtf,2)
+%                 r = norm([i,j]-center);
+%                 mtf(i,j) = interp1(abs(A_fft),r+1);
+%             end
+%         end
+
     elseif strcmp(type,'star')
     end
 end
