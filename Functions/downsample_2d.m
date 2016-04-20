@@ -9,11 +9,7 @@ function [ dsimg ] = downsample_2d(img,n)
 %   When downsamplefactor = 2: result:
 %   a b
 %   c d
-
-dsimg = zeros(ceil(size(img)/n));
-for i =1:ceil(size(img,2)/n)
-    dsimg(:,i) = downsample(img(:,1+(i-1)*n),n);
-end
+dsimg = downsample(downsample(img',n)',n);
 
 end
 
