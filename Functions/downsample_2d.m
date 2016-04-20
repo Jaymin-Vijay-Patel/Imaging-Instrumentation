@@ -1,4 +1,4 @@
-function [ dsimg ] = downsample_2d(img,n)
+function [ dsimg ] = downsample_2d(img,ny,nx)
 %DOWNSAMPLE_2D produces downedsampled image of an original image.
 %Say:
 %   Original Image:
@@ -9,7 +9,7 @@ function [ dsimg ] = downsample_2d(img,n)
 %   When downsamplefactor = 2: result:
 %   a b
 %   c d
-dsimg = downsample(downsample(img',n)',n);
+dsimg = downsample(downsample(img',nx)',ny);
 
 end
 

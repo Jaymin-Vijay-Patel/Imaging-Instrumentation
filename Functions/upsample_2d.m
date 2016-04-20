@@ -1,4 +1,4 @@
-function [ usimg ] = upsample_2d(img,n)
+function [ usimg ] = upsample_2d(img,ny,nx)
 %UPSAMPLE_2D produces upsampled image of an original image. Add n-1 zeros between each element of the original image, both in rows and columns. 
 %Say:
 %   Original Image:
@@ -10,7 +10,7 @@ function [ usimg ] = upsample_2d(img,n)
 %   c 0 d 0
 %   0 0 0 0
 
-usimg = upsample(upsample(img',n)',n);
+usimg = upsample(upsample(img',nx)',ny);
 
 end
 
