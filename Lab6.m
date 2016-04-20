@@ -20,7 +20,7 @@ frames = 1; %Number of frames to capture.
 %         %No Filter.
 %             exposure = 25;
 %             phantom4_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Yellow dye.
-%             phantommag_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Red, white, and blue dyes.
+%             phantommag_nofilter = zeros([aoi(3) aoi(4) 360],'int16'); %Red and blue dyes.
 %         %Filters.
 %             exposure = 100;
 %             phantom4_450 = zeros([aoi(3) aoi(4) 360],'int16');
@@ -71,9 +71,13 @@ frames = 1; %Number of frames to capture.
         end
     %An example call to reconstruct.m with no specified u0.
 %         phantom_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,[],recon_pixels,SAD,pixel_size);
-    %An example call to reconstruct.m with a measured u0.
+    %Example calls to reconstruct.m with a measured u0.
         phantom4_450_image = reconstruct(phantom4_450,lines,nophantom_450,D100,u0.phantom4_450,recon_pixels,SAD,pixel_size);
+        figure; imagesc(phantom4_450_image); axis equal; colorbar; colormap gray;
+        phantommag_600_image = reconstruct(phantommag_600,lines,nophantom_600,D100,u0.phantommag_600,recon_pixels,SAD,pixel_size);
+        figure; imagesc(phantommag_600_image); axis equal; colorbar; colormap gray;
         
-%Generate figures for the report.
-    %Figure .
-    figure; imagesc(recon_image); axis equal; colorbar; colormap gray;
+%Part 3. Analyze Data.
+    %An example for measuring the average concentration of a vial using define_aoi.m.
+        aoi_vial = define_aoi(phantom4_450_image);
+        mean_vial = mean2(phantom4_450_image(aoi_vial(1):aoi_vial(1)+aoi_vial(3),aoi_vial(2):aoi_vial(2)+aoi_vial(4)));
