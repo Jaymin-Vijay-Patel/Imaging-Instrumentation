@@ -1,11 +1,11 @@
-function Xn_hat = superresolution(Yk,factor,shift,beta,steps)
+function Xn_hat = superresolution(Yk,factor,pixel_shift,beta,steps)
 %SUPERRESOLUTION:  
 
 Y_dim = [size(Yk,1) size(Yk,2)];
 X_dim = [size(Yk,1) size(Yk,2)].*factor;
 
 Xn_hat = zeros(X_dim);
-[xt,yt] = meshgrid(0:shift(1):shift(1)*size(Yk,3)-shift(1),0:shift(2):shift(2)*size(Yk,4)-shift(2));
+[xt,yt] = meshgrid(0:pixel_shift(1):pixel_shift(1)*size(Yk,3)-pixel_shift(1),0:pixel_shift(2):pixel_shift(2)*size(Yk,4)-pixel_shift(2));
 for N = 1:steps
     Yk_hat = fproj(Xn_hat,Y_dim, xt, yt);
     sign_Yk_hat = sign(Yk_hat-Yk);
