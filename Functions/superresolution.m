@@ -8,11 +8,22 @@ Xn_hat = zeros(X_dim);
 [xt,yt] = meshgrid(0:size(Yk,3)-1,0:size(Yk,4)-1);
 %xt = xt * .5;
 %yt = yt * .5;
+
+do_clear_memory = 1;
 for N = 1:steps
     Yk_hat = fproj(Xn_hat,Y_dim, xt, yt);
     sign_Yk_hat = sign(Yk_hat-Yk);
+    if do_clear_memory > 0
+        clear('Yk_hat');
+	end
     back_sign_Yk_hat = bproj(sign_Yk_hat, X_dim, xt, yt);
+    if do_clear_memory > 0
+        clear('sign_Yk_hat');
+    end
     Xn_hat_error = sum(sum(back_sign_Yk_hat,3),4);
+    if do_clear_memory > 0
+        clear('back_sign_Yk_hat');
+    end
     Xn_reg = zeros(X_dim);
     for l = 0:P
         for m = -l:P
@@ -21,5 +32,8 @@ for N = 1:steps
         end
     end
     Xn_hat = Xn_hat-beta*(Xn_hat_error + lambda * Xn_reg);
+    if do_clear_memory > 0
+        clear('Xn_hat_error');
+    end
 end
 end
