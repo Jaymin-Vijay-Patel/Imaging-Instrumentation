@@ -33,14 +33,17 @@ if nargout==1
     h{1} = figure;
 end
 for i = 1:size(A,3)
-    for p = 1:size(A,4)
-        subplot(1,size(A,4),p); colormap('gray'); imagesc(A(:,:,i,p)'); axis('image'); h{2} = colorbar;
-        if i==1 && p==1 && exist('titleA','var')
-            title(titleA);
+    if mod(i,2) == 0
+        r4 = 1:size(A,4);
+    else
+        r4 = size(A,4):-1:1;
+    end
+    for p = r4
+        colormap('gray'); imagesc(A(:,:,i,p)'); axis('image'); h{2} = colorbar;
+        if size(A,3)>1 || size(A,4) > 1
+            pause(0.1);
         end
     end
-    if size(A,3)>1
-        pause(0.1);
-    end
+
 end
 end
