@@ -1,4 +1,4 @@
-function Xn_hat = superresolution(Yk,factor,alpha,beta,lambda,P,N,show_debug)
+function Xn_hat = superresolution(Yk,factor,alpha,beta,lambda,P,N,show_debug,psf)
 %SUPERRESOLUTION:
 tic
 sf = size(factor);
@@ -29,12 +29,20 @@ if show_debug ~= 0
     figure;
 end
 for nn = 1:N
-    Yk_hat = fproj(Xn_hat,Y_dim, xt, yt);
+    if ~exist('psf','var')
+        Yk_hat = fproj_psf(Xn_hat,Y_dim, xt, yt);
+    else
+        Yk_hat = fproj_psf(Xn_hat,Y_dim, xt, yt, psf);
+    end
     sign_Yk_hat = sign(Yk_hat-Yk);
     if do_clear_memory > 0
         clear('Yk_hat');
-	end
-    back_sign_Yk_hat = bproj(sign_Yk_hat, X_dim, xt, yt);
+    end
+    if ~exist('psf','var')
+        back_sign_Yk_hat = bproj_psf(sign_Yk_hat, X_dim, xt, yt);
+    else
+        back_sign_Yk_hat = bproj_psf(sign_Yk_hat, X_dim, xt, yt, psf);
+    end
     if do_clear_memory > 0
         clear('sign_Yk_hat');
     end

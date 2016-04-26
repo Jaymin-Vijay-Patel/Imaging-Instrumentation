@@ -122,13 +122,6 @@ function [mtf,region] = find_mtf(A,type,varargin)
         for i = 1:size(mtf,1)
             mtf(:,i) = interp1(abs(A_fft),Dmat(:,i)+1);
         end
-         
-%         for i = 1:size(mtf,1)
-%             for j = 1:size(mtf,2)
-%                 r = norm([i,j]-center);
-%                 mtf(i,j) = interp1(abs(A_fft),r+1);
-%             end
-%         end
 
     elseif strcmp(type,'star')
     end
