@@ -38,8 +38,8 @@
 %     figure; disp_image(phantom_images(:,:,:));
 
 %Generate high resolution images.
-    beta = 0.1;
-    steps = 1000;
+    beta = 20;
+    steps = 20;
 
     %High resolution from phantom
 %         factor = dim./rdim;
@@ -48,14 +48,13 @@
 %         figure; disp_image(Xn);
     
     %High resolution from collected data.
-%         load('C:\My Files\School\JHU\2015-2016\Classes\EN.580.693 Imaging Instrumentation\Final Project\FinalProject_Star_005_13x13.mat')
+%         load('C:\My Files\School\JHU\2015-2016\Classes\EN.580.693 Imaging Instrumentation\Final Project\FinalProject_Star_005_13x13.mat');
         data_images = star_low_005_13x13(1:3:end,1:3:end,:,:);
-        aoi = define_aoi(data_images(:,:,1,1));
-        shift = [0.005 0.005]; %mm.
-        pixel_size = 10/330; %mm.
-        factor = [2 2]; %round(pixel_size./shift)-1;
-        pixel_shift = shift./pixel_size;
-        dim = size(data_images);
+        dim = [100 100];
+        aoi = define_aoi(data_images(:,:,1,1),dim);
+%         shift = [0.005 0.005]; %mm.
+%         pixel_size = 10/330; %mm.
+        factor = [2 2]; %round(pixel_size./shift);
         data_images = data_images(aoi(1):aoi(1)+aoi(3),aoi(2):aoi(2)+aoi(4),:,:);
-        Xn = superresolution(data_images,factor,3*pixel_shift,beta,steps);
+        Xn = superresolution(data_images,factor,beta,steps);
         figure; disp_image(Xn);
