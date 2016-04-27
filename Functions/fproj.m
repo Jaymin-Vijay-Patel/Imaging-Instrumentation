@@ -1,17 +1,19 @@
-function [ imgs ] = fproj( img, rdim, xt, yt, psf)
-%FPROJ Forward projects img into multiple shifted images.
+function fimages = fproj(image,rdim,x_shift,y_shift,Hk)
+%FPROJ Forward projects image into multiple shifted images.
 %   Detailed explanation goes here
-fac = size(img)./rdim;
-imgs = zeros(rdim(1),rdim(2),size(yt,1),size(yt,2));
-% imgs = zeros([size(img) numel(yt)]);
-for i = 1:size(yt,1)
-    for j = 1:size(yt,2)
-        img_t = imtranslate(img, [xt(i,j) yt(i,j)]);
-        %deblur
-        if exist('psf','var')
-            img_t = convolve2(img_t,psf,'same');
+
+if ~exist('Hk','var')
+    Hk = [];
+end
+r = size(image)./rdim;
+fimages = zeros(rdim(1),rdim(2),size(y_shift,1),size(y_shift,2));
+for i = 1:size(y_shift,1)
+    for j = 1:size(y_shift,2)
+        img_t = imtranslate(image, [x_shift(i,j) y_shift(i,j)]);
+        if ~isempty(Hk)
+            img_t = convolve2(img_t,Hk,'same');
         end
-        imgs(:,:,i,j) = downsample_2d(img_t, fac(1), fac(2));
+        fimages(:,:,i,j) = downsample_2d(img_t, r(1), r(2));
     end
 end
 
