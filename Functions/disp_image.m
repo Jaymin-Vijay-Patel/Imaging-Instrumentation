@@ -1,10 +1,11 @@
-function h = disp_image(A)
+function h = disp_image(A,titleA)
 %DISP_IMAGE Display an image.
 %
 %Syntax:    DISP_IMAGE(A,titleA)
 %           h = DISP_IMAGE(...)
 %
 %Input:     A      - An image array; the 3rd dimension can contain frames.
+%           titleA - Figure title.
 %
 %Output     h - Cell containing figure and colorbar handles.
 %
@@ -13,7 +14,7 @@ function h = disp_image(A)
 %           Department of Biomedical Engineering
 %           Johns Hopkins University, Baltimore, MD.
 %E-mail:    nathan.crookston@gmail.com, slee333@jhu.edu, jpatel18@jhmi.edu
-%Revision:  04/26/16
+%Revision:  04/28/16
 %---------------------------------------------------
 
 %SET INPUTS
@@ -30,6 +31,7 @@ function h = disp_image(A)
 h = cell(1,2);
 if nargout==1
     h{1} = figure;
+    title(titleA);
 end
 for i = 1:size(A,3)
     if mod(i,2) == 0
@@ -39,7 +41,7 @@ for i = 1:size(A,3)
     end
     for p = r4
         colormap('gray'); imagesc(A(:,:,i,p)'); axis('image'); h{2} = colorbar;
-        if size(A,3)>1 || size(A,4) > 1
+        if size(A,3)>1 || size(A,4)>1
             pause(0.1);
         end
     end

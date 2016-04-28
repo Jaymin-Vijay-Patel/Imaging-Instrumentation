@@ -1,6 +1,13 @@
 function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
-%SUPERRESOLUTION .
-%   Detailed description.
+%SUPERRESOLUTION Super-resolution algorithm using the L1 norm for data fusion and regularization.
+%   - When r^2 <= size(Yk,3)*size(Yk,4) the system is underdetermined and
+%     there is only one measurement available for each HR pixel therefore
+%     the L1 norm will produce the same result as the L2 norm.
+%   - In under-determined cases some pixel locations have no estimate so the
+%     regularization term is required to remove outliers.
+%   - Solutions for square and over-determined cases are not stable, which
+%     means small amounts of noise in measurements will result in large
+%     perturbations in the final solution.
 %
 %Syntax:    S = SUPERRESOLUTION(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
 %           S = SUPERRESOLUTION(...,S) 
@@ -10,8 +17,8 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
 %           Hk      - Camera point spread function.
 %           beta    - Scalar defining step size in direction of the gradient.
 %           N       - Steps to use for steepest descent.
-%           alpha   - 
-%           lambda  - 
+%           alpha   - Scalar weight to give spatially decaying effect to the summation of the regularization terms (0<alpha<1).
+%           lambda  - Regularization scalar weight (lambda>=0).
 %           P       - 
 %           pixelL  - Pixel size at low resolution.
 %           show    - Display.
@@ -25,11 +32,11 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
 %               Hk      -- Camera point spread function.
 %               beta    -- Scalar defining step size in direction of the gradient.
 %               N       -- Steps to use for steepest descent.
-%               alpha   -- 
-%               lambda  -- 
+%               alpha   -- Scalar weight to give spatially decaying effect to the summation of the regularization terms.
+%               lambda  -- Regularization scalar weight.
 %               P       -- 
-%               x_shift -- 
-%               y_shift -- 
+%               x_shift -- High resolution pixel x shifts between upsampled low resolution images.
+%               y_shift -- High resolution pixel y shifts between upsampled low resolution images.
 %               pixelL  -- Pixel size at low resolution.
 %               pixelH  -- Pixel size at high resolution.
 %
@@ -41,7 +48,7 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
 %           Department of Biomedical Engineering
 %           Johns Hopkins University, Baltimore, MD.
 %E-mail:    nathan.crookston@gmail.com, slee333@jhu.edu, jpatel18@jhmi.edu
-%Revision:  04/27/16
+%Revision:  04/28/16
 %---------------------------------------------------
 %Start timer.
     tic;
