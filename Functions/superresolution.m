@@ -1,4 +1,4 @@
-function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
+function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
 %SUPERRESOLUTION Super-resolution algorithm using the L1 norm for data fusion and regularization.
 %   - When r^2 <= size(Yk,3)*size(Yk,4) the system is underdetermined and
 %     there is only one measurement available for each HR pixel therefore
@@ -22,7 +22,6 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
 %           P       - 
 %           pixelL  - Pixel size at low resolution.
 %           show    - Display.
-%           options - 'mean' Use dftregistration to correct initial positions and use the mean as the shift.
 %
 %Output:    S - Struct containing superresolution image and parameters.
 %               Xn_hat  -- High resolution image.
@@ -66,15 +65,6 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
             'P',P...
         );
     
-%Assign varargin.
-    for n = 1:numel(varargin)
-        if any(strcmp(varargin{n},'mean'))
-            shift = varargin{n};
-        end
-    end
-    if ~exist('shift','var')
-        shift = '';
-    end
 %Assign image dimensions and initiliaze high resolution image Xn_hat.
     if numel(r)==1
         r = [r r];
@@ -94,20 +84,6 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
     end
     S.x_shift = r(2)*S.x_shift; %Multiply by the resolution enhancement factor to determine high resolution subpixel shifts.
     S.y_shift = r(1)*S.y_shift;
-    if strcmp(shift,'mean') %Nate: This needs work, mostly because I'm not sure what you wanted to try.
-        x_diff = mean(diff(S.x_shift(1,:)));
-        x_shift = S.x_shift;
-        for ii = 1:size(x_shift,1)
-            x_shift(ii,:) = S.x_shift(ii,1)+x_diff*(0:size(x_shift,2)-1);
-        end
-        S.x_shift = x_shift;
-        y_diff = mean(diff(S.y_shift(1,:)));
-        y_shift = S.y_shift;
-        for ii = 1:size(y_shift,1)
-            y_shift(ii,:) = S.y_shift(ii,1)+y_diff*(0:size(y_shift,2)-1);
-        end
-        S.y_shift = y_shift;
-    end
 
 %Clear memory.
     clear_memory = false;
