@@ -1,4 +1,4 @@
-function [mtf,region] = find_mtf(A,type,varargin)
+function [mtf,region,A_lsf] = find_mtf(A,type,varargin)
 %FIND_MTF Find the MTF from a line pair, edge, or star.
 %   Line pair and star currently unsupported.
 %
@@ -16,13 +16,14 @@ function [mtf,region] = find_mtf(A,type,varargin)
 %
 %Output:    mtf    - Modulation transfer function of array A.
 %           region - A cell containing area of interest and crop.
+%           A_lsf  - Line spread function.
 %
 %---------------------------------------------------
 %Author:    Nathan Crookston, Seung Wook Lee, Jaymin Patel
 %           Department of Biomedical Engineering
 %           Johns Hopkins University, Baltimore, MD.
 %E-mail:    nathan.crookston@gmail.com, slee333@jhu.edu, jpatel18@jhmi.edu
-%Revision:  02/16/16
+%Revision:  04/27/16
 %---------------------------------------------------
 
 %SET INPUTS
