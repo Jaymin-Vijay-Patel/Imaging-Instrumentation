@@ -1,19 +1,20 @@
-function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
+function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,varargin)
 %SUPERRESOLUTION .
 %   Detailed description.
 %
 %Syntax:    Xn_hat = SUPERRESOLUTION(Yk,factor,alpha,beta,lambda,P,N,show_debug,psf)
 %
-%Input:     Yk     - Low resolution images [y x y_shift x_shift].
-%           r      - Resolution enhancement factor.
-%           Hk     - Camera point spread function.
-%           beta   - Scalar defining step size in direction of the gradient.
-%           N      - Steps to use for steepest descent.
-%           alpha  - 
-%           lambda - 
-%           P      - 
-%           pixelL - Pixel size at low resolution.
-%           show   - Display. 
+%Input:     Yk      - Low resolution images [y x y_shift x_shift].
+%           r       - Resolution enhancement factor.
+%           Hk      - Camera point spread function.
+%           beta    - Scalar defining step size in direction of the gradient.
+%           N       - Steps to use for steepest descent.
+%           alpha   - 
+%           lambda  - 
+%           P       - 
+%           pixelL  - Pixel size at low resolution.
+%           show    - Display.
+%           options - 
 %
 %Output:    S - Struct containing superresolution image and parameters.
 %               Xn_hat  -- High resolution image.
@@ -124,7 +125,7 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
     
 %Assign outputs into struct S.
     S.time = toc;
-    if nueml(pixelL)==1
+    if numel(pixelL)==1
         pixelL = [pixelL pixelL];
     end
     S.pixelL = pixelL;

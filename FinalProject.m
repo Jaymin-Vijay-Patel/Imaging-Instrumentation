@@ -73,7 +73,7 @@
 %         star_low_015_5x5_14 = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 14;
 %         star_low_015_5x5_7 = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 7;
 %         star_low_015_5x5_4 = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 4; %Managed to not save this.
-        star_low_015_5x5_4_nofilter = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 4;
+%         star_low_015_5x5_4_nofilter = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 4;
 %         star_low_015_5x5_0009 = zeros([aoi(3) aoi(4) numel(y_shift), numel(x_shift)],'double'); exposure = 0.009;
 %     %Capture images.
 %         for j = 1:numel(y_shift);
@@ -96,63 +96,36 @@
         lambda = 0.005;
         P = 2;
         pixelL = 0.0303; %Pixel size in low resolution image <mm>.
+        image_size = 1024;
         region = {[484 228 322 456],[35 22 270 412]};
         Hk = find_mtf(knife_low_005_13x13(:,:,1,1),'edge',[region,'hough']);
         Hk = fit_triag(Hk); %Generate virtual PSF with triangle fit on MTF.
         Hk = abs(Hk(ceil(size(Hk,2)/2)-4:ceil(size(Hk,2)/2)+4,ceil(size(Hk,2)/2)-4:ceil(size(Hk,2)/2)+4)); %Crop Hk.
     %Star pattern
         star_part = star_low_005_13x13(500:800,300:600,:,:);
-        %Smaller image.
+        %Use low resolution images 0.015mm apart 5x5 matrix with r = 2.
             star_high_2 = superresolution(star_part(:,:,1:3:end,1:3:end),2,[],10,20,alpha,lambda,P,pixelL,true); %r = 2, beta = 10, N = 20, Hk = [].
-        %Larger image (requires larger beta).
+        %Use low resolution images 0.005mm apart 7x7 matrix with r = 4.
             star_high_4_half = superresolution(star_part(100:200,100:200,1:2:end,1:2:end),4,[],15,30,alpha,lambda,P,pixelL,true); % r = 4, beta = 15, N = 30, Hk = [].
-        %More images (requires smaller beta).
-            star_high_4_full = superresolution(star_part(100:200,100:200,:,:),r,[],beta,N,alpha,lambda,P,pixelL,true); % r = 4, beta = 4, N = 30, Hk = [].
-        %Use camera blur (Hk).
+        %Use low resolution images 0.005mm apart 13x13 matrix with r = 4.
+            star_high_4_full = superresolution(star_part(100:200,100:200,:,:),4,[],4,30,alpha,lambda,P,pixelL,true); % r = 4, beta = 4, N = 30, Hk = [].
+        %Use camera blur (Hk) to reproduce star_high_2.
             star_high_2_Hk = superresolution(star_part(:,:,1:3:end,1:3:end),2,Hk,10,20,alpha,lambda,P,pixelL,true); %r = 2, beta = 10, N = 20.
     %Line pairs.
     
-%     %Knife edge.
-%         knife_part = knife_low_005_13x13(500:800,300:600,:,:);
-%         %Low resolution image.
-%             region = cell(1,2);
-%             region{1} = ceil([97 1 102 202]/2);
-%             region{2} = ceil([9 10 88 184]/2);
-%             [Hk_low,~,A_lsf_1] = find_mtf(knife_part(100:200,100:200,1,1),'edge',region);
-%             A_fft_1 = fftshift(fft(A_lsf_1,1024));
-%             low_pixel = 0.0303; %mm/pixel.
-%             A_fov = low_pixel*1024;
-%             df = 1/A_fov;
-%             F = df*(-512:511);
-%             figure; plot(F,abs(A_fft_1));
-%         %Smaller image.
-%             r = 2;
-%             P = 3;
-%             beta = 1;
-%             N = 20;
-%             knife_high_2 = superresolution(knife_part(100:200,100:200,:,:),r,[],beta,N,alpha,lambda,P,pixelL,show);
-%             region = cell(1,2);
-%             region{1} = [97 1 102 202];
-%             region{2} = [9 10 88 184];
-%             [Hk_high_2,~,A_lsf_2] = find_mtf(knife_high_2,'edge',region);
-%             A_fft_2 = fftshift(fft(A_lsf,1024));
-%             low_pixel = 0.0303; %mm/pixel.
-%             high_pixel = low_pixel/r;
-%             A_fov = high_pixel*1024;
-%             df = 1/A_fov;
-%             F = df*(-512:511);
-%             figure; plot(F,abs(A_fft_2));
-%         %More images (requires smaller beta).
-%             r = 4;
-%             P = 2;
-%             beta = .5;
-%             N = 50;
-%             knife_high_4_full = superresolution(knife_part(100:200,100:200,:,:),r,Hk,beta,N,alpha,lambda,P,pixelL,show);
-%             [Hk_high_4_full,~,A_lsf_4_full] = find_mtf(knife_high_4_full,'edge',region);
-%             A_fft_4_full = fftshift(fft(A_lsf_4_full,1024));
-%             low_pixel = 0.0303; %mm/pixel.
-%             high_pixel = low_pixel/r;
-%             A_fov = high_pixel*1024;
-%             df = 1/A_fov;
-%             F = df*(-512:511);
-%             figure; plot(F,abs(A_fft_4_full));
+    %Knife edge.
+        knife_part = knife_low_005_13x13(500:800,300:600,:,:);
+        %Low resolution.
+            region = {ceil([97 1 102 202]/2),ceil([9 10 88 184]/2)};
+            [F_low,FFT_low,MTF_low,LSF_low] = plot_mtf(knife_part(100:200,100:200,1,1),pixelL,image_size,region);
+%             figure; plot(F_low,abs(FFT_low));
+        %High resolution.
+            %Use low resolution images 0.015mm apart 5x5 matrix with r = 2.
+                knife_high_2 = superresolution(knife_part(100:200,100:200,:,:),2,[],1,20,alpha,lambda,3,pixelL,true); %r = 2, beta = 1, N = 20, P = 3.
+                region = {[97 1 102 202],[9 10 88 184]};
+                [F_high_2,FFT_high_2,MTF_high_2,LSF_high_2] = plot_mtf(knife_high_2.Xn_hat,knife_high_2.pixelH(1),image_size,region);
+%                 figure; plot(F_high_2,abs(FFT_high_2));
+            %Use low resolution images 0.005mm apart 13x13 matrix with r = 4.
+                knife_high_4_full = superresolution(knife_part(100:200,100:200,:,:),4,Hk,0.5,50,alpha,lambda,P,pixelL,true); %r = 2, beta = 0.5, N = 50.
+                [F_high_4_full,FFT_high_4_full,MTF_high_4_full,LSF_high_4_full] = plot_mtf(knife_high_4_full.Xn_hat,knife_high_4_full.pixelH(1),image_size,region);
+%                 figure; plot(F_high_4_full,abs(FFT_high_4_full));
