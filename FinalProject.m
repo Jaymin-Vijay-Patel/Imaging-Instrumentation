@@ -112,7 +112,15 @@
         %Use camera blur (Hk) to reproduce star_high_2.
             star_high_2_Hk = superresolution(star_part(:,:,1:3:end,1:3:end),2,Hk,10,20,alpha,lambda,P,pixelL,true); %r = 2, beta = 10, N = 20.
     %Line pairs.
-    
+        line_part = line_low_005_13x13(580:780,40:420,:,:);
+        %Use low resolution images 0.015mm apart 5x5 matrix with r = 2.
+            line_high_2 = superresolution(line_part(:,:,1:3:end,1:3:end),2,[],10,30,alpha,lambda,P,pixelL,true); %r = 2, beta = 10, N = 30, Hk = [].
+        %Use low resolution images 0.005mm apart 7x7 matrix with r = 4.
+            line_high_4_half = superresolution(line_part(1:200,1:200,1:2:end,1:2:end),4,[],15,30,alpha,lambda,P,pixelL,true); % r = 4, beta = 15, N = 30, Hk = [].
+        %Use low resolution images 0.005mm apart 13x13 matrix with r = 4.
+            line_high_4_full = superresolution(line_part(1:50,1:200,:,:),4,[],4,30,alpha,lambda,P,pixelL,true); % r = 4, beta = 4, N = 30, Hk = [].
+        %Use camera blur (Hk) to reproduce star_high_2.
+            line_high_2_Hk = superresolution(line_part(:,:,1:3:end,1:3:end),2,Hk,10,20,alpha,lambda,P,pixelL,true); %r = 2, beta = 10, N = 20.
     %Knife edge.
         knife_part = knife_low_005_13x13(500:800,300:600,:,:);
         %Low resolution.
