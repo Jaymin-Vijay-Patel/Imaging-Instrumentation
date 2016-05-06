@@ -52,21 +52,32 @@ for ii = 1:size(kp,3)
 end
 s = 1:3:13;
 knife_part = knife_low_005_13x13(200:1000,300:600,:,:);
-knife_high_2 = superresolution(knife_part(:,:,s,s),2,[],1,100,alpha,lambda,2,pixelL,true,x_shift(s,s),y_shift(s,s));
+knife_high_2 = superresolution(knife_part(:,:,s,s),2,[],1,500,alpha,lambda,2,pixelL,true,x_shift(s,s),y_shift(s,s));
 thigh = knife_high_2.Xn_hat;
 thigh(thigh < 0) = 0;
+knife_high_2_db = superresolution(knife_part(:,:,s,s),2,Hk,.8,500,alpha,lambda,2,pixelL,true,x_shift(s,s),y_shift(s,s));
+thighdb = knife_high_2_db.Xn_hat;
+thighdb(thighdb < 0) = 0;
 
 [F_high_2,FFT_high_2,MTF_high_2,LSF_high_2] = plot_mtf(thigh,knife_high_2.pixelH(1),1024);
+[F_high_2_db,FFT_high_2_db,MTF_high_2_db,LSF_high_2_db] = plot_mtf(thighdb,knife_high_2_db.pixelH(1),1024);
 [F_low,FFT_low,MTF_low,LSF_low] = plot_mtf(knife_part(:,:,1,1),pixelL,1024);
 
 figure;
 high_side = abs(FFT_high_2(512:end));
+high_db_side = abs(FFT_high_2_db(512:end));
 low_side = abs(FFT_low(512:end));
 plot(F_low(512:end),low_side/max(low_side))
 hold on
 plot(F_high_2(512:end),high_side/max(high_side))
+plot(F_high_2_db(512:end),high_db_side/max(high_db_side))
 axis([0 35 0 1]);
-legend('Original', '2x HR');
+legend('Original', '2x HR', '2x HR deblur');
 ylabel('MTF (normalized)');
 xlabel('frequency (lines/mm)');
 title('MTF (normalized) for original and reconstructed');
+
+figure;
+subplot(1,3,1); imagesc(knife_part(400:550,:,1,1)'); title('Knife Edge: Original'); colorbar; colormap gray; caxis([0 850]);
+subplot(1,3,2); imagesc(thigh(800:1100,:)'); title('Knife Edge: 2x resolution'); colorbar; colormap gray; caxis([0 850]);
+subplot(1,3,3); imagesc(thighdb(800:1100,:)'); title('Knife Edge: 2x resolution w/ deblur'); colorbar; colormap gray; caxis([0 850]);
