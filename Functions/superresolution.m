@@ -1,4 +1,4 @@
-function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
+function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show,x_shift,y_shift)
 %SUPERRESOLUTION Super-resolution algorithm using the L1 norm for data fusion and regularization.
 %   - When r^2 <= size(Yk,3)*size(Yk,4) the system is underdetermined and
 %     there is only one measurement available for each HR pixel therefore
@@ -72,14 +72,19 @@ function S = superresolution(Yk,r,Hk,beta,N,alpha,lambda,P,pixelL,show)
     Y_dim = [size(Yk,1) size(Yk,2)]; %Low resolution dimensions.
     X_dim = r.*Y_dim; %High resolution dimensions.
     S.Xn_hat = zeros(X_dim); %High resolution image.
-    
+
+    if nargin > 10
+        S.x_shift = x_shift;
+        S.y_shift = y_shift;
+    else
 %Determine the high resolution subpixel shifts.
-    [S.x_shift,S.y_shift] = meshgrid(1:size(Yk,3),1:size(Yk,4));
-    for ii = 1:size(Yk,3)
-        for jj = 1:size(Yk,4)
-            regout = dftregistration(fft2(Yk(:,:,ii,jj)), fft2(Yk(:,:,1,1)),100); %Use dftregistration to determine the low resolution subpixel shifts.
-            S.x_shift(ii,jj) = regout(4);
-            S.y_shift(ii,jj) = regout(3);
+        [S.x_shift,S.y_shift] = meshgrid(1:size(Yk,3),1:size(Yk,4));
+        for ii = 1:size(Yk,3)
+            for jj = 1:size(Yk,4)
+                regout = dftregistration(fft2(Yk(:,:,ii,jj)), fft2(Yk(:,:,1,1)),100); %Use dftregistration to determine the low resolution subpixel shifts.
+                S.x_shift(ii,jj) = regout(4);
+                S.y_shift(ii,jj) = regout(3);
+            end
         end
     end
     S.x_shift = r(2)*S.x_shift; %Multiply by the resolution enhancement factor to determine high resolution subpixel shifts.
